@@ -49,36 +49,22 @@ public class Order {
 
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public int getTotalItem() {
-        return totalItem;
-    }
-
-    public void setTotalItem(int totalItem) {
-        this.totalItem = totalItem;
-    }
-
-    public Integer getDiscounte() {
-        return discounte;
-    }
-
-    public void setDiscounte(Integer discounte) {
-        this.discounte = discounte;
-    }
-
-    public Integer getTotalDiscountedPrice() {
-        return totalDiscountedPrice;
-    }
-
-    public void setTotalDiscountedPrice(Integer totalDiscountedPrice) {
+    public Order(Long id, String orderId, User user, List<OrderItem> orderItems, LocalDateTime orderDate, LocalDateTime deliveryDate, Address shippingAddress, PaymentDetails paymentDetails, double totalPrice,
+                 Integer totalDiscountedPrice, Integer discounte, String orderStatus, int totalItem, LocalDateTime createdAt) {
+        this.id = id;
+        this.orderId = orderId;
+        this.user = user;
+        this.orderItems = orderItems;
+        this.orderDate = orderDate;
+        this.deliveryDate = deliveryDate;
+        this.shippingAddress = shippingAddress;
+        this.paymentDetails = paymentDetails;
+        this.totalPrice = totalPrice;
         this.totalDiscountedPrice = totalDiscountedPrice;
+        this.discounte = discounte;
+        this.orderStatus = orderStatus;
+        this.totalItem = totalItem;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -87,6 +73,14 @@ public class Order {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     public User getUser() {
@@ -145,6 +139,22 @@ public class Order {
         this.totalPrice = totalPrice;
     }
 
+    public Integer getTotalDiscountedPrice() {
+        return totalDiscountedPrice;
+    }
+
+    public void setTotalDiscountedPrice(Integer totalDiscountedPrice) {
+        this.totalDiscountedPrice = totalDiscountedPrice;
+    }
+
+    public Integer getDiscounte() {
+        return discounte;
+    }
+
+    public void setDiscounte(Integer discounte) {
+        this.discounte = discounte;
+    }
+
     public String getOrderStatus() {
         return orderStatus;
     }
@@ -153,15 +163,19 @@ public class Order {
         this.orderStatus = orderStatus;
     }
 
-    public String getOrderId() {
-        return orderId;
+    public int getTotalItem() {
+        return totalItem;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setTotalItem(int totalItem) {
+        this.totalItem = totalItem;
     }
 
-    // constructors, getters and setters
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

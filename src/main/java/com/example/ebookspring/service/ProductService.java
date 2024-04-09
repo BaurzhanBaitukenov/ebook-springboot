@@ -21,4 +21,8 @@ public interface ProductService {
 
     public Page<Product> getAllProduct(String category, List<String> genres, List<String> languages, Integer minPrice, Integer maxPrice,
                                        Integer minDiscount, String sort, String stock, Integer pageNumber, Integer pageSize);
+
+    public List<Product> getAllProducts();
+
+    public List<Product> recentlyAddedProduct();
 }

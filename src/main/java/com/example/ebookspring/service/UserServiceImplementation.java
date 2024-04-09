@@ -6,6 +6,7 @@ import com.example.ebookspring.model.User;
 import com.example.ebookspring.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -43,5 +44,11 @@ public class UserServiceImplementation implements UserService{
         }
 
         return user;
+    }
+
+    @Override
+    public List<User> findAllUsers() {
+        // TODO Auto-generated method stub
+        return userRepository.findAllByOrderByCreatedAtDesc();
     }
 }

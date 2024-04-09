@@ -13,11 +13,11 @@ public interface OrderService {
 
     public Order findOrderById(Long orderId) throws OrderException;
 
-    public List<Order> usersOrderHistory(Long userId);
+    public List<Order> usersOrderHistory (Long orderId);
 
     public Order placedOrder(Long orderId) throws OrderException;
 
-    public Order confirmedOrder(Long orderId)throws OrderException;
+    public Order confirmedOrder(Long orderId) throws OrderException;
 
     public Order shippedOrder(Long orderId) throws OrderException;
 
@@ -25,7 +25,7 @@ public interface OrderService {
 
     public Order cancledOrder(Long orderId) throws OrderException;
 
-    public List<Order>getAllOrders();
+    public List<Order> getAllOrders();
 
     public void deleteOrder(Long orderId) throws OrderException;
 }

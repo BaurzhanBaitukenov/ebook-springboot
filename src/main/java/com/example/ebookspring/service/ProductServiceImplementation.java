@@ -159,4 +159,14 @@ public class ProductServiceImplementation implements ProductService{
         Page<Product> filteredProducts = new PageImpl<>(pageContent, pageable, products.size());
         return filteredProducts;
     }
+
+    @Override
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    @Override
+    public List<Product> recentlyAddedProduct() {
+        return productRepository.findTop10ByOrderByCreatedAtDesc();
+    }
 }

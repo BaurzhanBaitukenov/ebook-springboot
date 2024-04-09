@@ -6,6 +6,7 @@ import com.example.ebookspring.model.User;
 import com.example.ebookspring.repository.UserRepository;
 import com.example.ebookspring.request.LoginRequest;
 import com.example.ebookspring.response.AuthResponse;
+import com.example.ebookspring.service.CartService;
 import com.example.ebookspring.service.CustomUserServiceImplementation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +29,18 @@ public class AuthController {
     private JwtProvider jwtProvider;
     private PasswordEncoder passwordEncoder;
     private CustomUserServiceImplementation customUserServiceImplementation;
+    private CartService cartService;
 
     public AuthController(UserRepository userRepository,
                           CustomUserServiceImplementation customUserServiceImplementation,
                           PasswordEncoder passwordEncoder,
-                          JwtProvider jwtProvider) {
+                          JwtProvider jwtProvider,
+                          CartService cartService) {
         this.userRepository = userRepository;
         this.customUserServiceImplementation = customUserServiceImplementation;
         this.passwordEncoder = passwordEncoder;
         this.jwtProvider = jwtProvider;
+        this.cartService = cartService;
     }
 
     @PostMapping("/signup")
@@ -60,6 +64,8 @@ public class AuthController {
         createdUser.setLastName(lastNString);
 
         User savedUser = userRepository.save(createdUser);
+
+        cartService.createCart(savedUser);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getPassword(), savedUser.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authentication);
