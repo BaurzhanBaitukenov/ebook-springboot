@@ -2,6 +2,7 @@ package com.example.ebookspring.controller;
 
 import com.example.ebookspring.config.JwtProvider;
 import com.example.ebookspring.exception.UserException;
+import com.example.ebookspring.model.Cart;
 import com.example.ebookspring.model.User;
 import com.example.ebookspring.repository.UserRepository;
 import com.example.ebookspring.request.LoginRequest;
@@ -28,57 +29,53 @@ public class AuthController {
     private UserRepository userRepository;
     private JwtProvider jwtProvider;
     private PasswordEncoder passwordEncoder;
-    private CustomUserServiceImplementation customUserServiceImplementation;
+    private CustomUserServiceImplementation customUserService;
     private CartService cartService;
 
-    public AuthController(UserRepository userRepository,
-                          CustomUserServiceImplementation customUserServiceImplementation,
-                          PasswordEncoder passwordEncoder,
-                          JwtProvider jwtProvider,
-                          CartService cartService) {
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                          CustomUserServiceImplementation customUserService, JwtProvider jwtProvider, CartService cartService) {
         this.userRepository = userRepository;
-        this.customUserServiceImplementation = customUserServiceImplementation;
         this.passwordEncoder = passwordEncoder;
+        this.customUserService = customUserService;
         this.jwtProvider = jwtProvider;
         this.cartService = cartService;
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> createUserHandler (@RequestBody User user) throws UserException {
+    public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws UserException {
 
         String email = user.getEmail();
         String password = user.getPassword();
-        String firstString = user.getFirstName();
-        String lastNString = user.getLastName();
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
 
         User isEmailExist = userRepository.findByEmail(email);
 
-        if(isEmailExist != null) {
-            throw new UserException("Email is Already Used With Another User");
+        if (isEmailExist != null) {
+            throw new UserException("Email is Already Used With Another Account");
         }
+
 
         User createdUser = new User();
         createdUser.setEmail(email);
         createdUser.setPassword(passwordEncoder.encode(password));
-        createdUser.setFirstName(firstString);
-        createdUser.setLastName(lastNString);
+        createdUser.setFirstName(firstName);
+        createdUser.setLastName(lastName);
 
         User savedUser = userRepository.save(createdUser);
+        Cart cart = cartService.createCart(savedUser);
 
-        cartService.createCart(savedUser);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getPassword(), savedUser.getPassword());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String token = jwtProvider.generateToken(authentication);
 
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(token);
-        authResponse.setMessage("Sign-up Success");
+        authResponse.setMessage("Signup Success");
 
-        return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
-
 
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse> loginUserHandler(@RequestBody LoginRequest loginRequest) {
@@ -93,21 +90,20 @@ public class AuthController {
 
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(token);
-        authResponse.setMessage("Sign-in Success");
+        authResponse.setMessage("Signin Success");
 
         return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.CREATED);
     }
 
 
     private Authentication authenticate(String username, String password) {
+        UserDetails userDetails = customUserService.loadUserByUsername(username);
 
-        UserDetails userDetails = customUserServiceImplementation.loadUserByUsername(username);
-
-        if(userDetails == null) {
-            throw new BadCredentialsException("Invalid Username");
+        if (userDetails == null) {
+            throw new BadCredentialsException("Invalid Username...");
         }
 
-        if(!passwordEncoder.matches(password, userDetails.getPassword())) {
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid Password...");
         }
 
