@@ -42,7 +42,7 @@ public class Product {
     @Embedded
     @ElementCollection
     @Column(name = "languages")
-    private Set<Language> languages = new HashSet<>();
+    private Set<Language> languages=new HashSet<>();
 
     @Column(name = "image_url")
     private String imageUrl;

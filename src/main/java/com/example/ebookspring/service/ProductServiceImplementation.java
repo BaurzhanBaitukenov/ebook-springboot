@@ -13,22 +13,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ProductServiceImplementation implements ProductService{
+public class ProductServiceImplementation implements ProductService {
 
     private ProductRepository productRepository;
     private UserService userService;
     private CategoryRepository categoryRepository;
 
-    public ProductServiceImplementation(ProductRepository productRepository, UserService userService, CategoryRepository categoryRepository) {
-        this.productRepository = productRepository;
-        this.userService = userService;
-        this.categoryRepository = categoryRepository;
+    public ProductServiceImplementation(ProductRepository productRepository,UserService userService,CategoryRepository categoryRepository) {
+        this.productRepository=productRepository;
+        this.userService=userService;
+        this.categoryRepository=categoryRepository;
     }
+
 
     @Override
     public Product createProduct(CreateProductRequest req) {
@@ -70,13 +72,12 @@ public class ProductServiceImplementation implements ProductService{
 
         Product product=new Product();
         product.setTitle(req.getTitle());
-        product.setAuthor(req.getAuthor());
         product.setGenre(req.getGenre());
         product.setDescription(req.getDescription());
         product.setDiscountedPrice(req.getDiscountedPrice());
         product.setDiscountPersent(req.getDiscountPersent());
         product.setImageUrl(req.getImageUrl());
-        product.setGenre(req.getGenre());
+        product.setAuthor(req.getAuthor());
         product.setPrice(req.getPrice());
         product.setLanguages(req.getLanguage());
         product.setQuantity(req.getQuantity());
@@ -92,21 +93,38 @@ public class ProductServiceImplementation implements ProductService{
 
     @Override
     public String deleteProduct(Long productId) throws ProductException {
-        Product product = findProductById(productId);
+
+        Product product=findProductById(productId);
+
+        System.out.println("delete product "+product.getId()+" - "+productId);
         product.getLanguages().clear();
+//		productRepository.save(product);
+//		product.getCategory().
         productRepository.delete(product);
-        return "Product deleted successfully";
+
+        return "Product deleted Successfully";
     }
 
     @Override
-    public Product updateProduct(Long productId, Product req) throws ProductException {
-        Product product = findProductById(productId);
+    public Product updateProduct(Long productId,Product req) throws ProductException {
+        Product product=findProductById(productId);
 
-        if(req.getQuantity() != 0) {
+        if(req.getQuantity()!=0) {
             product.setQuantity(req.getQuantity());
         }
+        if(req.getDescription()!=null) {
+            product.setDescription(req.getDescription());
+        }
+
+
+
 
         return productRepository.save(product);
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 
     @Override
@@ -121,12 +139,28 @@ public class ProductServiceImplementation implements ProductService{
 
     @Override
     public List<Product> findProductByCategory(String category) {
-        return null;
+
+        System.out.println("category --- "+category);
+
+        List<Product> products = productRepository.findByCategory(category);
+
+        return products;
     }
 
     @Override
-    public Page<Product> getAllProduct(String category, List<String> genres, List<String> languages, Integer minPrice,
-                                       Integer maxPrice, Integer minDiscount, String sort, String stock, Integer pageNumber, Integer pageSize) {
+    public List<Product> searchProduct(String query) {
+        List<Product> products=productRepository.searchProduct(query);
+        return products;
+    }
+
+
+
+
+
+    @Override
+    public Page<Product> getAllProduct(String category, List<String>genres,
+                                       List<String> languages, Integer minPrice, Integer maxPrice,
+                                       Integer minDiscount,String sort, String stock, Integer pageNumber, Integer pageSize ) {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
@@ -157,16 +191,16 @@ public class ProductServiceImplementation implements ProductService{
 
         List<Product> pageContent = products.subList(startIndex, endIndex);
         Page<Product> filteredProducts = new PageImpl<>(pageContent, pageable, products.size());
-        return filteredProducts;
+        return filteredProducts; // If color list is empty, do nothing and return all products
+
+
     }
 
-    @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
 
     @Override
     public List<Product> recentlyAddedProduct() {
+
         return productRepository.findTop10ByOrderByCreatedAtDesc();
     }
+
 }
