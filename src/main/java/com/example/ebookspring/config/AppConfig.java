@@ -34,7 +34,8 @@ public class AppConfig {
 
                         cfg.setAllowedOrigins(Arrays.asList(
                                 "http://localhost:3000",
-                                "http://localhost:4200"
+                                "http://localhost:4200",
+                                "https://ebook-vread.vercel.app"
                         ));
                         cfg.setAllowedMethods(Collections.singletonList("*"));
                         cfg.setAllowCredentials(true);
