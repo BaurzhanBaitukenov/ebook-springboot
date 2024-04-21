@@ -4,6 +4,7 @@ import com.example.ebookspring.exception.ProductException;
 import com.example.ebookspring.model.Category;
 import com.example.ebookspring.model.Product;
 import com.example.ebookspring.repository.CategoryRepository;
+import com.example.ebookspring.repository.OrderItemRepository;
 import com.example.ebookspring.repository.ProductRepository;
 import com.example.ebookspring.request.CreateProductRequest;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -24,11 +26,14 @@ public class ProductServiceImplementation implements ProductService {
     private ProductRepository productRepository;
     private UserService userService;
     private CategoryRepository categoryRepository;
+    private OrderItemRepository orderItemRepository;
 
-    public ProductServiceImplementation(ProductRepository productRepository,UserService userService,CategoryRepository categoryRepository) {
+    public ProductServiceImplementation(ProductRepository productRepository,UserService userService,CategoryRepository categoryRepository,
+                                        OrderItemRepository orderItemRepository) {
         this.productRepository=productRepository;
         this.userService=userService;
         this.categoryRepository=categoryRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
 
@@ -92,16 +97,12 @@ public class ProductServiceImplementation implements ProductService {
     }
 
     @Override
+    @Transactional
     public String deleteProduct(Long productId) throws ProductException {
-
-        Product product=findProductById(productId);
-
-        System.out.println("delete product "+product.getId()+" - "+productId);
+        Product product = findProductById(productId);
         product.getLanguages().clear();
-//		productRepository.save(product);
-//		product.getCategory().
+        orderItemRepository.deleteByProductId(productId);
         productRepository.delete(product);
-
         return "Product deleted Successfully";
     }
 
