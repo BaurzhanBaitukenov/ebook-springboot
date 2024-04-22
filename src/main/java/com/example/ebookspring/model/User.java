@@ -27,7 +27,7 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    //    @Enumerated(EnumType.STRING)
+//    @Enumerated(EnumType.STRING)
     private String role;
 
     private String mobile;

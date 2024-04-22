@@ -3,6 +3,7 @@ package com.example.ebookspring.service;
 import com.example.ebookspring.exception.ProductException;
 import com.example.ebookspring.model.Category;
 import com.example.ebookspring.model.Product;
+import com.example.ebookspring.repository.CartItemRepository;
 import com.example.ebookspring.repository.CategoryRepository;
 import com.example.ebookspring.repository.OrderItemRepository;
 import com.example.ebookspring.repository.ProductRepository;
@@ -27,13 +28,15 @@ public class ProductServiceImplementation implements ProductService {
     private UserService userService;
     private CategoryRepository categoryRepository;
     private OrderItemRepository orderItemRepository;
+    private CartItemRepository cartItemRepository;
 
     public ProductServiceImplementation(ProductRepository productRepository,UserService userService,CategoryRepository categoryRepository,
-                                        OrderItemRepository orderItemRepository) {
+                                        OrderItemRepository orderItemRepository, CartItemRepository cartItemRepository) {
         this.productRepository=productRepository;
         this.userService=userService;
         this.categoryRepository=categoryRepository;
         this.orderItemRepository = orderItemRepository;
+        this.cartItemRepository = cartItemRepository;
     }
 
 
@@ -102,6 +105,7 @@ public class ProductServiceImplementation implements ProductService {
         Product product = findProductById(productId);
         product.getLanguages().clear();
         orderItemRepository.deleteByProductId(productId);
+        cartItemRepository.deleteByProductId(productId);
         productRepository.delete(product);
         return "Product deleted Successfully";
     }
