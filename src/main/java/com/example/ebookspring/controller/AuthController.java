@@ -4,6 +4,7 @@ import com.example.ebookspring.config.JwtProvider;
 import com.example.ebookspring.exception.UserException;
 import com.example.ebookspring.model.Cart;
 import com.example.ebookspring.model.User;
+import com.example.ebookspring.model.Varification;
 import com.example.ebookspring.repository.UserRepository;
 import com.example.ebookspring.request.LoginRequest;
 import com.example.ebookspring.response.AuthResponse;
@@ -41,6 +42,7 @@ public class AuthController {
         this.cartService = cartService;
     }
 
+//    @PostMapping("/signup")
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws UserException {
 
@@ -48,6 +50,7 @@ public class AuthController {
         String password = user.getPassword();
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
+        String birthDate = user.getBirthDate();
         String role=user.getRole();
 
         User isEmailExist = userRepository.findByEmail(email);
@@ -62,6 +65,8 @@ public class AuthController {
         createdUser.setPassword(passwordEncoder.encode(password));
         createdUser.setFirstName(firstName);
         createdUser.setLastName(lastName);
+        createdUser.setBirthDate(birthDate);
+        createdUser.setVerification(new Varification());
         createdUser.setRole(role);
 
         User savedUser = userRepository.save(createdUser);
@@ -75,6 +80,7 @@ public class AuthController {
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(token);
         authResponse.setMessage("Signup Success");
+        authResponse.setStatus(true);
 
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
@@ -93,6 +99,7 @@ public class AuthController {
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(token);
         authResponse.setMessage("Signin Success");
+        authResponse.setStatus(true);
 
         return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.CREATED);
     }
@@ -106,7 +113,7 @@ public class AuthController {
         }
 
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid Password...");
+            throw new BadCredentialsException("Invalid Username or Password...");
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
