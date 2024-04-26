@@ -25,7 +25,7 @@ public class TwitDtoMapper {
         }
 
         TwitDto twitDto = new TwitDto();
-        twitDto.setId(twitDto.getId());
+        twitDto.setId(twit.getId());
         twitDto.setContent(twit.getContent());
         twitDto.setCreatedAt(twit.getCreatedAt());
         twitDto.setImage(twit.getImage());
@@ -66,7 +66,7 @@ public class TwitDtoMapper {
         }
 
         TwitDto twitDto = new TwitDto();
-        twitDto.setId(twitDto.getId());
+        twitDto.setId(twit.getId());
         twitDto.setContent(twit.getContent());
         twitDto.setCreatedAt(twit.getCreatedAt());
         twitDto.setImage(twit.getImage());
