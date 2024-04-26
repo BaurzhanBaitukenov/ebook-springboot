@@ -1,5 +1,6 @@
 package com.example.ebookspring.service;
 
+import com.example.ebookspring.exception.LikeException;
 import com.example.ebookspring.exception.TwitException;
 import com.example.ebookspring.exception.UserException;
 import com.example.ebookspring.model.Like;
@@ -10,5 +11,8 @@ import java.util.List;
 public interface LikeService {
 
     public Like likeTwit(Long twitId, User user) throws UserException, TwitException;
+
+    public Like unlikeTwit(Long twitId, User user) throws UserException, TwitException, LikeException;
+
     public List<Like> getAllLikes(Long twitId) throws TwitException;
 }

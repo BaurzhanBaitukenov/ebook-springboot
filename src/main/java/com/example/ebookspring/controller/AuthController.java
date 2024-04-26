@@ -23,6 +23,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.security.auth.login.CredentialException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -33,6 +38,8 @@ public class AuthController {
     private CustomUserServiceImplementation customUserService;
     private CartService cartService;
 
+    private static final String GOOGLE_CLIENT_ID = "GOOGLE_CLIENT_ID";
+
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder,
                           CustomUserServiceImplementation customUserService, JwtProvider jwtProvider, CartService cartService) {
         this.userRepository = userRepository;
@@ -42,7 +49,85 @@ public class AuthController {
         this.cartService = cartService;
     }
 
-//    @PostMapping("/signup")
+//    @PostMapping("/signin/google")
+//    public ResponseEntity<AuthResponse> googleLogin(@RequestBody LoginWithGooleRequest req) throws GeneralSecurityException, IOException {
+//
+//        User user = validateGoogleIdToken(req);
+//
+//        String email = user.getEmail();
+//        User existingUser = userRepository.findByEmail(email);
+//
+//        if (existingUser == null) {
+//
+//            User newUser = new User();
+//            newUser.setEmail(email);
+//            newUser.setImage(user.getImage());
+//            newUser.setFullName(user.getFullName());
+//            newUser.setLogin_with_google(true);
+//            newUser.setPassword(user.getPassword());
+//            newUser.setVerification(new Varification());
+//
+//            userRepository.save(newUser);
+//        }
+//
+////	        System.out.println("email ---- "+ existingUser.getEmail()+" jwt - ");
+//
+//        Authentication authentication =  new UsernamePasswordAuthenticationToken(email, user.getPassword());
+//
+//
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//        String token = jwtProvider.generateToken(authentication);
+//
+//
+//        AuthResponse authResponse = new AuthResponse();
+//        authResponse.setStatus(true);
+//        authResponse.setJwt(token);
+//
+////	        System.out.println("email ---- "+ existingUser.getEmail()+" jwt - "+token);
+//
+//        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+//    }
+//
+//
+//    private User validateGoogleIdToken(LoginWithGooleRequest req) throws GeneralSecurityException, IOException {
+//        HttpTransport transport = new NetHttpTransport();
+//        JacksonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+//
+//        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+//                .setAudience(Collections.singletonList(req.getClientId()))
+//                .build();
+//
+//        GoogleIdToken token = verifier.verify(req.getCredential());
+//        if (req.getCredential() != null) {
+//
+//            Payload payload = token.getPayload();
+//            String userId = payload.getSubject();
+//
+//            System.out.println("User ID: " + userId);
+//
+//            String email = payload.getEmail();
+//            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+//            String name = (String) payload.get("name");
+//            String pictureUrl = (String) payload.get("picture");
+//            String locale = (String) payload.get("locale");
+//            String familyName = (String) payload.get("family_name");
+//            String givenName = (String) payload.get("given_name");
+//
+//            User user=new User();
+//            user.setImage(pictureUrl);
+//            user.setEmail(email);
+//            user.setPassword(userId);
+//
+//            System.out.println("image url - -  "+pictureUrl);
+//
+//            return user;
+//
+//        } else {
+//            throw new CredentialException("invalid id token...");
+//        }
+//    }
+
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws UserException {
 

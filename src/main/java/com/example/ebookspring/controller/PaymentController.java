@@ -2,8 +2,11 @@ package com.example.ebookspring.controller;
 
 
 import com.example.ebookspring.exception.OrderException;
+import com.example.ebookspring.exception.UserException;
 import com.example.ebookspring.model.Order;
+import com.example.ebookspring.model.User;
 import com.example.ebookspring.repository.OrderRepository;
+import com.example.ebookspring.repository.UserRepository;
 import com.example.ebookspring.response.ApiResponse;
 import com.example.ebookspring.response.PaymentLinkResponse;
 import com.example.ebookspring.service.OrderService;
@@ -18,6 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api")
 public class PaymentController {
@@ -31,11 +36,14 @@ public class PaymentController {
     private OrderService orderService;
     private UserService userService;
     private OrderRepository orderRepository;
+    private UserRepository userRepository;
 
-    public PaymentController(OrderService orderService, UserService userService, OrderRepository orderRepository) {
+    public PaymentController(OrderService orderService, UserService userService, OrderRepository orderRepository,
+                             UserRepository userRepository) {
         this.orderService = orderService;
         this.userService = userService;
         this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/payments/{orderId}")
@@ -104,6 +112,117 @@ public class PaymentController {
             return new ResponseEntity<ApiResponse>(res, HttpStatus.ACCEPTED);
 
         } catch (Exception e) {
+            throw new RazorpayException(e.getMessage());
+        }
+    }
+
+
+
+    //for subscription
+    @PostMapping("/plan/subscribe/{planType}")
+    public ResponseEntity<PaymentLinkResponse> createSubscription(@PathVariable String planType,
+                                                                  @RequestHeader("Authorization") String jwt)
+            throws RazorpayException, UserException {
+
+        RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
+
+        try {
+
+            User user=userService.findUserProfileByJwt(jwt);
+
+            JSONObject paymentLinkRequest = new JSONObject();
+            paymentLinkRequest.put("currency","KZT");
+            paymentLinkRequest.put("description","Twitter Verification");
+
+            JSONObject customer = new JSONObject();
+            customer.put("name",user.getFirstName());
+            customer.put("email",user.getEmail());
+            paymentLinkRequest.put("customer",customer);
+
+            JSONObject notify = new JSONObject();
+            notify.put("sms",true);
+            notify.put("email",true);
+            paymentLinkRequest.put("notify",notify);
+            paymentLinkRequest.put("reminder_enable",true);
+
+            JSONObject notes = new JSONObject();
+
+            notes.put("user_id", user.getId().toString());
+            paymentLinkRequest.put("notes",notes);
+
+            paymentLinkRequest.put("callback_url","http://localhost:3000/communication/verified");
+            paymentLinkRequest.put("callback_method","get");
+
+            if(planType.equals("monthly")) {
+                paymentLinkRequest.put("amount",1000*100);
+                notes.put("plan","monthly");
+            }
+            else {
+                paymentLinkRequest.put("amount",2500*100);
+                notes.put("plan","monthly");
+            }
+
+            PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);
+
+            System.out.println("plan : yearly"+payment);
+
+            String paymentLinkId = payment.get("id");
+            String paymentLinkUrl = payment.get("short_url");
+
+            PaymentLinkResponse res=new PaymentLinkResponse();
+            res.setPayment_link_url(paymentLinkUrl);
+
+            return new ResponseEntity<>(res,HttpStatus.CREATED);
+
+        } catch (RazorpayException e) {
+            throw new RazorpayException(e.getMessage());
+        }
+    }
+
+
+    @GetMapping("/plan/{paymentLinkId}")
+    public ResponseEntity<String> fetchPaymetn(@PathVariable String paymentLinkId) throws RazorpayException {
+
+        RazorpayClient razorpay = new RazorpayClient(apiKey, apiSecret);
+
+        try {
+
+            PaymentLink payment = razorpay.paymentLink.fetch(paymentLinkId);
+
+            String customerJsonString = payment.get("customer").toString();
+
+            JSONObject customerObject = new JSONObject(customerJsonString);
+
+            String email = customerObject.getString("email");
+
+            User user =userRepository.findByEmail(email);
+
+            String notesJsonString=payment.get("notes").toString();
+
+            JSONObject notesObject=new JSONObject(notesJsonString);
+
+            String plan=notesObject.getString("plan");
+
+            if(payment.get("status").equals("paid")) {
+                user.getVerification().setStartedAt(LocalDateTime.now());
+                user.getVerification().setPlanType(plan);
+
+                if (plan.equals("yearly")) {
+                    LocalDateTime endsAt = user.getVerification().getStartedAt().plusYears(1);
+                    user.getVerification().setEndsAt(endsAt);
+                }
+                else if (plan.equals("monthly")) {
+                    LocalDateTime endsAt = user.getVerification().getStartedAt().plusMonths(1);
+                    user.getVerification().setEndsAt(endsAt);
+                }
+
+                userRepository.save(user);
+
+            }
+
+            return new ResponseEntity<>(email,HttpStatus.CREATED);
+
+        } catch (RazorpayException e) {
             throw new RazorpayException(e.getMessage());
         }
     }

@@ -19,6 +19,7 @@ public class UserDto {
     private String mobile;
     private String backgroundImage;
     private String bio;
+    private String role;
     private boolean req_user;
 
     private boolean login_with_google;

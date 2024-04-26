@@ -29,109 +29,102 @@ public class TwitController {
 
     @PostMapping("/create")
     public ResponseEntity<TwitDto> createTwit(@RequestBody Twit req,
-                                              @RequestHeader("Authorization") String jwt) throws UserException, TwitException {
+                                              @RequestHeader("Authorization") String jwt) throws UserException, TwitException{
 
-        User user = userService.findUserProfileByJwt(jwt);
+        System.out.println("content + "+req.getContent());
+        User user=userService.findUserProfileByJwt(jwt);
+        Twit twit=twitService.createTwit(req, user);
 
-        Twit twit = twitService.createTwit(req, user);
+        TwitDto twitDto=TwitDtoMapper.toTwitDto(twit,user);
 
-        TwitDto twitDto = TwitDtoMapper.toTwitDto(twit, user);
-        return new ResponseEntity<>(twitDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(twitDto,HttpStatus.CREATED);
     }
 
 
     @PostMapping("/reply")
     public ResponseEntity<TwitDto> replyTwit(@RequestBody TwitReplyRequest req,
-                                              @RequestHeader("Authorization") String jwt) throws UserException, TwitException {
+                                             @RequestHeader("Authorization") String jwt) throws UserException, TwitException{
 
-        User user = userService.findUserProfileByJwt(jwt);
 
-        Twit twit = twitService.createdReply(req, user);
+        User user=userService.findUserProfileByJwt(jwt);
+        Twit twit=twitService.createReply(req, user);
 
-        TwitDto twitDto = TwitDtoMapper.toTwitDto(twit, user);
-        return new ResponseEntity<>(twitDto, HttpStatus.CREATED);
+        TwitDto twitDto=TwitDtoMapper.toTwitDto(twit,user);
+
+        return new ResponseEntity<>(twitDto,HttpStatus.CREATED);
     }
 
 
     @PutMapping("/{twitId}/retwit")
-    public ResponseEntity<TwitDto> retwit(@PathVariable Long twitId,
-                                             @RequestHeader("Authorization") String jwt) throws UserException, TwitException {
+    public ResponseEntity<TwitDto> retwit( @PathVariable Long twitId,
+                                           @RequestHeader("Authorization") String jwt) throws UserException, TwitException{
 
-        User user = userService.findUserProfileByJwt(jwt);
+        User user=userService.findUserProfileByJwt(jwt);
 
-        Twit twit = twitService.retwit(twitId, user);
+        Twit twit=twitService.retwit(twitId, user);
 
-        TwitDto twitDto = TwitDtoMapper.toTwitDto(twit, user);
+        TwitDto twitDto=TwitDtoMapper.toTwitDto(twit,user);
 
-        return new ResponseEntity<>(twitDto, HttpStatus.OK);
+        return new ResponseEntity<>(twitDto,HttpStatus.OK);
     }
 
 
     @GetMapping("/{twitId}")
-    public ResponseEntity<TwitDto> findTwitById(@PathVariable Long twitId,
-                                          @RequestHeader("Authorization") String jwt) throws UserException, TwitException {
+    public ResponseEntity<TwitDto> findTwitById( @PathVariable Long twitId,
+                                                 @RequestHeader("Authorization") String jwt) throws TwitException, UserException{
+        User user=userService.findUserProfileByJwt(jwt);
+        Twit twit=twitService.findById(twitId);
 
-        User user = userService.findUserProfileByJwt(jwt);
+        TwitDto twitDto=TwitDtoMapper.toTwitDto(twit,user);
 
-        Twit twit = twitService.findById(twitId);
-
-        TwitDto twitDto = TwitDtoMapper.toTwitDto(twit, user);
-
-        return new ResponseEntity<>(twitDto, HttpStatus.OK);
+        return new ResponseEntity<>(twitDto,HttpStatus.ACCEPTED);
     }
 
     @DeleteMapping("/{twitId}")
-    public ResponseEntity<ApiResponse> deleteTwit(@PathVariable Long twitId,
-                                          @RequestHeader("Authorization") String jwt) throws UserException, TwitException {
+    public ResponseEntity<ApiResponse> deleteTwitById( @PathVariable Long twitId,
+                                                       @RequestHeader("Authorization") String jwt) throws UserException, TwitException{
 
-        User user = userService.findUserProfileByJwt(jwt);
+        User user=userService.findUserProfileByJwt(jwt);
 
         twitService.deleteTwitById(twitId, user.getId());
 
-        ApiResponse res = new ApiResponse();
-        res.setMessage("Twit deleted Successfully");
+        ApiResponse res=new ApiResponse();
+        res.setMessage("twit deleted successfully");
         res.setStatus(true);
 
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res,HttpStatus.OK);
+
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<TwitDto>> getAllTwits(@RequestHeader("Authorization") String jwt) throws UserException, TwitException {
-
-        User user = userService.findUserProfileByJwt(jwt);
-
-        List<Twit> twits = twitService.findAllTwit();
-
-        List<TwitDto> twitDto = TwitDtoMapper.toTwitDtos(twits, user);
-
-        return new ResponseEntity<>(twitDto, HttpStatus.OK);
+    public ResponseEntity<List<TwitDto>> findAllTwits(@RequestHeader("Authorization") String jwt) throws UserException{
+        User user=userService.findUserProfileByJwt(jwt);
+        List<Twit> twits=twitService.findAllTwit();
+        List<TwitDto> twitDtos=TwitDtoMapper.toTwitDtos(twits,user);
+        return new ResponseEntity<List<TwitDto>>(twitDtos,HttpStatus.OK);
     }
 
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<TwitDto>> getUsersAllTwits(@PathVariable Long userId,
-                                                          @RequestHeader("Authorization") String jwt) throws UserException, TwitException {
-
-        User user = userService.findUserProfileByJwt(jwt);
-
-        List<Twit> twits = twitService.getUserTwit(user);
-
-        List<TwitDto> twitDto = TwitDtoMapper.toTwitDtos(twits, user);
-
-        return new ResponseEntity<>(twitDto, HttpStatus.OK);
+    public ResponseEntity<List<TwitDto>> getUsersTwits(@PathVariable Long userId,
+                                                       @RequestHeader("Authorization") String jwt)
+            throws UserException{
+        User reqUser=userService.findUserProfileByJwt(jwt);
+        User user=userService.findUserById(userId);
+        List<Twit> twits=twitService.getUserTwit(user);
+        List<TwitDto> twitDtos=TwitDtoMapper.toTwitDtos(twits,reqUser);
+        return new ResponseEntity<List<TwitDto>>(twitDtos,HttpStatus.OK);
     }
 
 
     @GetMapping("/user/{userId}/likes")
     public ResponseEntity<List<TwitDto>> findTwitByLikesContainsUser(@PathVariable Long userId,
-                                                          @RequestHeader("Authorization") String jwt) throws UserException, TwitException {
-
-        User user = userService.findUserProfileByJwt(jwt);
-
-        List<Twit> twits = twitService.findByLikesContainsUser(user);
-
-        List<TwitDto> twitDto = TwitDtoMapper.toTwitDtos(twits, user);
-
-        return new ResponseEntity<>(twitDto, HttpStatus.OK);
+                                                                     @RequestHeader("Authorization") String jwt)
+            throws UserException{
+        User reqUser=userService.findUserProfileByJwt(jwt);
+        User user=userService.findUserById(userId);
+        List<Twit> twits=twitService.findByLikesContainsUser(user);
+        List<TwitDto> twitDtos=TwitDtoMapper.toTwitDtos(twits,reqUser);
+        return new ResponseEntity<List<TwitDto>>(twitDtos,HttpStatus.OK);
     }
 }

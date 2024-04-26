@@ -2,18 +2,21 @@ package com.example.ebookspring.mapper;
 
 import com.example.ebookspring.dto.UserDto;
 import com.example.ebookspring.model.User;
+import com.example.ebookspring.util.UserUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDtoMapper {
-    
+
     public static UserDto toUserDto(User user) {
-        UserDto userDto = new UserDto();
+
+        UserDto userDto=new UserDto();
         userDto.setId(user.getId());
         userDto.setEmail(user.getEmail());
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
+        userDto.setRole(user.getRole());
         userDto.setImage(user.getImage());
         userDto.setBackgroundImage(user.getBackgroundImage());
         userDto.setBio(user.getBio());
@@ -22,16 +25,17 @@ public class UserDtoMapper {
         userDto.setFollowing(toUserDtos(user.getFollowings()));
         userDto.setLogin_with_google(user.isLogin_with_google());
         userDto.setLocation(user.getLocation());
-//        userDto.setVerified(false);
+        userDto.setVerified(UserUtil.isVerified(user.getVerification().getEndsAt()));
 
         return userDto;
     }
 
-    public static List<UserDto> toUserDtos(List<User> followers) {
-        List<UserDto> userDtos = new ArrayList<>();
+    public static List<UserDto> toUserDtos(List<User> users) {
 
-        for(User user: followers) {
-            UserDto userDto = new UserDto();
+        List<UserDto> userDtos=new ArrayList<>();
+
+        for(User user: users) {
+            UserDto userDto=new UserDto();
             userDto.setId(user.getId());
             userDto.setEmail(user.getEmail());
             userDto.setFirstName(user.getFirstName());
@@ -39,7 +43,7 @@ public class UserDtoMapper {
             userDto.setImage(user.getImage());
             userDtos.add(userDto);
         }
-
         return userDtos;
     }
+
 }

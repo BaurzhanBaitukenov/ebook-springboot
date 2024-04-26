@@ -17,7 +17,7 @@ public class CustomUserServiceImplementation implements UserDetailsService {
     private UserRepository userRepository;
 
     public CustomUserServiceImplementation(UserRepository userRepository) {
-        this.userRepository = userRepository;
+        this.userRepository=userRepository;
     }
 
     @Override
@@ -25,12 +25,13 @@ public class CustomUserServiceImplementation implements UserDetailsService {
 
         User user = userRepository.findByEmail(username);
 
-        if(user == null) {
-            throw new UsernameNotFoundException("User Not Found With Email - " + username);
+        if(user == null || user.isLogin_with_google()) {
+            throw new UsernameNotFoundException("user not found with email "+username);
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
+        return new org.springframework.security.core.userdetails.User(user.getEmail(),user.getPassword(),authorities);
+
     }
 }
