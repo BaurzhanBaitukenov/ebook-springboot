@@ -215,6 +215,7 @@ public class PaymentController {
                     LocalDateTime endsAt = user.getVerification().getStartedAt().plusMonths(1);
                     user.getVerification().setEndsAt(endsAt);
                 }
+                user.setReq_user(true);
 
                 userRepository.save(user);
 
