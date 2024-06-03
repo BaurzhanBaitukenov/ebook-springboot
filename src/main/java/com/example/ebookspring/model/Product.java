@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+//
 @Entity
 public class Product {
 
@@ -61,13 +61,15 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    private String link;
+
     private LocalDateTime createdAt;
 
     public Product() {
     }
 
     public Product(Long id, String title, String author,String description, int price, int discountedPrice, int discountPersent, int quantity, String genre, Set<Language> languages,
-                   String imageUrl, List<Rating> ratings, List<Review> reviews, int numRatings, Category category, LocalDateTime createdAt) {
+                   String imageUrl, List<Rating> ratings, List<Review> reviews, int numRatings, Category category, String link,LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -83,7 +85,16 @@ public class Product {
         this.reviews = reviews;
         this.numRatings = numRatings;
         this.category = category;
+        this.link = link;
         this.createdAt = createdAt;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 
     public String getAuthor() {

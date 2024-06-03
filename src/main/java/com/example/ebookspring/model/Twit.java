@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Data
 public class Twit {
-
+//
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

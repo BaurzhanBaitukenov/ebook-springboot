@@ -9,7 +9,7 @@ public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
+//
     @JsonIgnore
     @ManyToOne
     private Cart cart;

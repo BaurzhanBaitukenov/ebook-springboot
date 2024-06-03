@@ -11,7 +11,7 @@ public class PaymentInformation {
 
     @Column(name = "card_number")
     private String cardNumber;
-
+//
     @Column(name = "expiration_date")
     private LocalDate expirationDate;
 

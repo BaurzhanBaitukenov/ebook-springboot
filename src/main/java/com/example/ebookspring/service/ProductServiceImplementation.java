@@ -90,6 +90,7 @@ public class ProductServiceImplementation implements ProductService {
         product.setLanguages(req.getLanguage());
         product.setQuantity(req.getQuantity());
         product.setCategory(thirdLevel);
+        product.setLink(req.getLink());
         product.setCreatedAt(LocalDateTime.now());
 
         Product savedProduct= productRepository.save(product);
